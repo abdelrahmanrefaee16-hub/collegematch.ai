@@ -1,2 +1,80 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+from flask import Flask, g, render_template_string, request, redirect, url_for, session, jsonify
+import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
+import re
+
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'supersecretkey'
+DATABASE = 'college_app.db'
+
+
+# Database setup
+def get_db():
+if 'db' not in g:
+g.db = sqlite3.connect(DATABASE)
+g.db.row_factory = sqlite3.Row
+return g.db
+
+
+@app.teardown_appcontext
+def close_db(error):
+db = g.pop('db', None)
+if db is not None:
+db.close()
+
+
+def init_db():
+db = get_db()
+db.executescript('''
+CREATE TABLE IF NOT EXISTS users (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+email TEXT UNIQUE NOT NULL,
+password_hash TEXT NOT NULL,
+sat INTEGER,
+gpa REAL,
+budget_min INTEGER,
+budget_max INTEGER,
+preferred_location TEXT
+);
+''')
+db.commit()
+
+
+# Sample colleges
+colleges = [
+{"name": "Harvard University", "location": "USA", "tuition": 54000, "min_gpa": 3.9, "min_sat": 1500},
+{"name": "University of Toronto", "location": "Canada", "tuition": 45000, "min_gpa": 3.7, "min_sat": 1400},
+{"name": "Oxford University", "location": "UK", "tuition": 40000, "min_gpa": 3.8, "min_sat": 1450},
+{"name": "Tokyo University", "location": "Japan", "tuition": 30000, "min_gpa": 3.6, "min_sat": 1350}
+]
+
+
+# Routes
+@app.before_first_request
+def setup():
+init_db()
+
+
+@app.route('/')
+def home():
+return render_template_string('''
+<h1>College Match App</h1>
+<p><a href="/register">Register</a> | <a href="/login">Login</a></p>
+''')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+if request.method == 'POST':
+email = request.form['email']
+password = request.form['password']
+db = get_db()
+try:
+db.execute('INSERT INTO users (email, password_hash) VALUES (?, ?)', (email, generate_password_hash(password)))
+db.commit()
+return redirect(url_for('login'))
+except sqlite3.IntegrityError:
