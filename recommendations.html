@@ -4,7 +4,269 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recommendations - Academic Future Predictor</title>
-    <link rel="stylesheet" href="static/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .recommendations-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .questionnaire-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .questionnaire-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .questionnaire-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .card-header h2 {
+            font-size: 1.75rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .alert-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+        }
+
+        .alert-box.success {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+
+        .alert-box.danger {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-box svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .alert-box.success svg {
+            color: #22c55e;
+        }
+
+        .alert-box.danger svg {
+            color: #ef4444;
+        }
+
+        .alert-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .alert-box p {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .recommendations-section {
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .recommendations-section h2 {
+            font-size: 1.75rem;
+            color: white;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .rec-card {
+            padding: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .rec-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .rec-card.high {
+            border-left: 4px solid #ef4444;
+        }
+
+        .rec-card.medium {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .rec-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .rec-card .card-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .rec-card .card-content p {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .success-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 100%;
+        }
+
+        .success-category h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+
+        .category-academic {
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .category-wellbeing {
+            color: #10b981;
+            border-color: #10b981;
+        }
+
+        .category-resources {
+            color: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .category-financial {
+            color: #8b5cf6;
+            border-color: #8b5cf6;
+        }
+
+        .success-category ul {
+            list-style: none;
+        }
+
+        .success-category li {
+            padding: 8px 0;
+            color: #4b5563;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .success-category li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
+            border: 2px solid;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            border-color: #5568d3;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .btn-outline:hover {
+            background: transparent;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .questionnaire-header h1 {
+                font-size: 2rem;
+            }
+
+            .rec-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .success-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="recommendations-container">
