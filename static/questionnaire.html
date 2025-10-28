@@ -58,9 +58,48 @@
             height: 20px;
             cursor: pointer;
         }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>🤖 AI is analyzing your data...</h3>
+            <p>Please wait while we process your prediction</p>
+        </div>
+    </div>
+
     <div class="questionnaire-container">
         <div class="questionnaire-header">
             <h1>Welcome, <span id="user-name"></span>!</h1>
@@ -70,20 +109,20 @@
         <div class="card">
             <div class="card-header">
                 <h2>Academic Assessment Questionnaire</h2>
-                <p class="card-description">Please provide accurate information for the best prediction</p>
+                <p class="card-description">🤖 Powered by Machine Learning AI</p>
             </div>
             <div class="card-content">
                 <form id="questionnaire-form">
                     <!-- Gender -->
                     <div class="form-group">
-                        <label>🧍‍♂️ What is your gender?</label>
+                        <label>👧‍♂️ What is your gender?</label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="gender" value="male" required>
+                                <input type="radio" name="gender" value="1" required>
                                 <span>Male</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="gender" value="female">
+                                <input type="radio" name="gender" value="0">
                                 <span>Female</span>
                             </label>
                         </div>
@@ -94,11 +133,11 @@
                         <label for="nationality">🗺️ What is your nationality?</label>
                         <select id="nationality" required>
                             <option value="">Select nationality</option>
-                            <option value="portuguese">Portuguese</option>
-                            <option value="european">European (Spain, France, Italy, Germany, etc.)</option>
-                            <option value="portuguese-africa">Portuguese-speaking Africa (Angola, Mozambique, Cape Verde, etc.)</option>
-                            <option value="latin-america">Latin America (Brazil, Argentina, etc.)</option>
-                            <option value="other">Other (Asia, North America, rest of the world)</option>
+                            <option value="0">Portuguese</option>
+                            <option value="1">European (Spain, France, Italy, Germany, etc.)</option>
+                            <option value="2">Portuguese-speaking Africa (Angola, Mozambique, Cape Verde, etc.)</option>
+                            <option value="3">Latin America (Brazil, Argentina, etc.)</option>
+                            <option value="4">Other (Asia, North America, rest of the world)</option>
                         </select>
                     </div>
 
@@ -125,11 +164,11 @@
                         <label for="maritalStatus">💍 What is your marital status?</label>
                         <select id="maritalStatus" required>
                             <option value="">Select marital status</option>
-                            <option value="single">Single</option>
-                            <option value="married">Married</option>
-                            <option value="widowed">Widowed</option>
-                            <option value="divorced">Divorced</option>
-                            <option value="separated">Legally Separated</option>
+                            <option value="1">Single</option>
+                            <option value="2">Married</option>
+                            <option value="3">Widowed</option>
+                            <option value="4">Divorced</option>
+                            <option value="5">Legally Separated</option>
                         </select>
                     </div>
 
@@ -138,11 +177,11 @@
                         <label>🌍 Are you an international or national student?</label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="studentType" value="national" required>
+                                <input type="radio" name="studentType" value="1" required>
                                 <span>National (Portuguese student)</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="studentType" value="international">
+                                <input type="radio" name="studentType" value="0">
                                 <span>International student</span>
                             </label>
                         </div>
@@ -175,7 +214,7 @@
                         <label>💰 Are your tuition fees up to date?</label>
                         <div class="checkbox-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="tuitionUpToDate" value="yes">
+                                <input type="checkbox" id="tuitionUpToDate" value="1">
                                 <span>✅ Yes (fees are paid and current)</span>
                             </label>
                         </div>
@@ -183,10 +222,10 @@
 
                     <!-- Displaced -->
                     <div class="form-group">
-                        <label>🏚️ Have you been displaced from your home region?</label>
+                        <label>🏘️ Have you been displaced from your home region?</label>
                         <div class="checkbox-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="displaced" value="yes">
+                                <input type="checkbox" id="displaced" value="1">
                                 <span>✅ Yes (displaced from home region)</span>
                             </label>
                         </div>
@@ -197,7 +236,7 @@
                         <label>🧩 Do you have any educational special needs?</label>
                         <div class="checkbox-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="specialNeeds" value="yes">
+                                <input type="checkbox" id="specialNeeds" value="1">
                                 <span>✅ Yes (special educational needs)</span>
                             </label>
                         </div>
@@ -205,10 +244,10 @@
 
                     <!-- Admission Grade -->
                     <div class="form-group">
-                        <label for="admissionGrade">🎯 What was your admission grade? (0–20)</label>
+                        <label for="admissionGrade">🎯 What was your admission grade? (0–200 scale)</label>
                         <div class="slider-container">
-                            <input type="range" id="admissionGrade" class="slider" min="0" max="20" step="0.1" value="15.0" required>
-                            <span class="slider-value" id="admissionGradeValue">15.0</span>
+                            <input type="range" id="admissionGrade" class="slider" min="95" max="190" step="0.5" value="140" required>
+                            <span class="slider-value" id="admissionGradeValue">140</span>
                         </div>
                     </div>
 
@@ -248,7 +287,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-full">Submit & Get Prediction</button>
+                    <button type="submit" class="btn btn-primary btn-full">🤖 Get AI Prediction</button>
                 </form>
             </div>
         </div>
@@ -271,95 +310,6 @@
         updateSliderValue('secondSemesterGrade', 'secondSemesterGradeValue');
         updateSliderValue('secondSemesterApproved', 'secondSemesterApprovedValue');
 
-        // Prediction Algorithm - Updated with new inputs
-        function calculatePrediction(data) {
-            let score = 0;
-            
-            // First Semester Grade (0-20) - 25 points
-            const firstSemester = parseFloat(data.firstSemesterGrade) || 0;
-            score += (firstSemester / 20) * 25;
-            
-            // Second Semester Grade (0-20) - 25 points
-            const secondSemester = parseFloat(data.secondSemesterGrade) || 0;
-            score += (secondSemester / 20) * 25;
-            
-            // Admission Grade - 10 points
-            const admissionGrade = parseFloat(data.admissionGrade) || 0;
-            score += (admissionGrade / 20) * 10;
-            
-            // First Semester Approved Units - 8 points
-            const firstApproved = parseInt(data.firstSemesterApproved) || 0;
-            score += (firstApproved / 10) * 8;
-            
-            // Second Semester Approved Units - 8 points
-            const secondApproved = parseInt(data.secondSemesterApproved) || 0;
-            score += (secondApproved / 10) * 8;
-            
-            // Previous Qualification - 7 points
-            const prevQual = parseInt(data.previousQualification) || 0;
-            score += (prevQual / 4) * 7;
-            
-            // Tuition Up To Date - 5 points
-            if (data.tuitionUpToDate === 'yes') {
-                score += 5;
-            }
-            
-            // Parent Occupation - 4 points (higher occupation = more points)
-            const parentOcc = parseInt(data.parentOccupation) || 0;
-            if (parentOcc <= 2) {
-                score += 4;
-            } else if (parentOcc <= 4) {
-                score += 3;
-            } else if (parentOcc <= 6) {
-                score += 2;
-            } else {
-                score += 1;
-            }
-            
-            // Enrollment Age - 3 points (ideal: 18-22)
-            const age = parseFloat(data.enrollmentAge) || 0;
-            if (age >= 18 && age <= 22) {
-                score += 3;
-            } else if (age < 18 || (age > 22 && age <= 25)) {
-                score += 2;
-            } else {
-                score += 1;
-            }
-            
-            // Student Type - 2 points
-            if (data.studentType === 'national') {
-                score += 2;
-            } else {
-                score += 1;
-            }
-            
-            // Marital Status - 1 point
-            if (data.maritalStatus === 'single') {
-                score += 1;
-            }
-            
-            // Displaced - deduct 1 point if displaced
-            if (data.displaced !== 'yes') {
-                score += 1;
-            }
-            
-            // Special Needs - neutral (no points added/subtracted)
-            
-            // Calculate percentage and determine outcome
-            const percentage = Math.min(Math.round(score), 100);
-            
-            let outcome;
-            if (percentage >= 70) {
-                outcome = 'Graduate';
-            } else if (percentage >= 45) {
-                outcome = 'Remain Enrolled';
-            } else {
-                outcome = 'Drop Out';
-            }
-            
-            return { outcome, percentage };
-        }
-
         // Load user name from sessionStorage
         window.addEventListener('DOMContentLoaded', function() {
             const userName = sessionStorage.getItem('userName');
@@ -370,37 +320,70 @@
             }
         });
 
-        document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+        document.getElementById('questionnaire-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Collect all form data
-            const questionnaireData = {
-                gender: document.querySelector('input[name="gender"]:checked').value,
-                nationality: document.getElementById('nationality').value,
-                parentOccupation: document.getElementById('parentOccupation').value,
-                maritalStatus: document.getElementById('maritalStatus').value,
-                studentType: document.querySelector('input[name="studentType"]:checked').value,
-                previousQualification: document.getElementById('previousQualification').value,
-                enrollmentAge: document.getElementById('enrollmentAge').value,
-                tuitionUpToDate: document.getElementById('tuitionUpToDate').checked ? 'yes' : 'no',
-                displaced: document.getElementById('displaced').checked ? 'yes' : 'no',
-                specialNeeds: document.getElementById('specialNeeds').checked ? 'yes' : 'no',
-                admissionGrade: document.getElementById('admissionGrade').value,
-                firstSemesterGrade: document.getElementById('firstSemesterGrade').value,
-                firstSemesterApproved: document.getElementById('firstSemesterApproved').value,
-                secondSemesterGrade: document.getElementById('secondSemesterGrade').value,
-                secondSemesterApproved: document.getElementById('secondSemesterApproved').value
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            // Collect form data and convert to ML model format
+            const formData = {
+                gender: parseInt(document.querySelector('input[name="gender"]:checked').value),
+                nationality_group: parseInt(document.getElementById('nationality').value),
+                parent_occupation_group: parseInt(document.getElementById('parentOccupation').value),
+                marital_status: parseInt(document.getElementById('maritalStatus').value),
+                student_type: parseInt(document.querySelector('input[name="studentType"]:checked').value),
+                previous_qualification_group: parseInt(document.getElementById('previousQualification').value),
+                age_at_enrollment: parseFloat(document.getElementById('enrollmentAge').value),
+                tuition_up_to_date: document.getElementById('tuitionUpToDate').checked ? 1 : 0,
+                displaced: document.getElementById('displaced').checked ? 1 : 0,
+                special_needs: document.getElementById('specialNeeds').checked ? 1 : 0,
+                first_semester_grade: parseFloat(document.getElementById('firstSemesterGrade').value),
+                second_semester_grade: parseFloat(document.getElementById('secondSemesterGrade').value),
+                second_semester_approved: parseInt(document.getElementById('secondSemesterApproved').value),
+                first_semester_approved: parseInt(document.getElementById('firstSemesterApproved').value),
+                admission_grade: parseFloat(document.getElementById('admissionGrade').value)
             };
             
-            // Store data in sessionStorage
-            sessionStorage.setItem('questionnaireData', JSON.stringify(questionnaireData));
-            
-            // Calculate prediction
-            const predictionResult = calculatePrediction(questionnaireData);
-            sessionStorage.setItem('predictionResult', JSON.stringify(predictionResult));
-            
-            // Redirect to results
-            window.location.href = 'results.html';
+            try {
+                // Call Flask API for prediction
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                if (result.success) {
+                    // Store prediction result
+                    const predictionResult = {
+                        outcome: result.outcome,
+                        confidence: result.confidence,
+                        percentage: Math.round(result.confidence * 100)
+                    };
+                    
+                    sessionStorage.setItem('predictionResult', JSON.stringify(predictionResult));
+                    sessionStorage.setItem('questionnaireData', JSON.stringify(formData));
+                    
+                    // Redirect to results
+                    window.location.href = 'results.html';
+                } else {
+                    alert('⚠️ Error: ' + result.error + '\n\nPlease make sure the Flask server is running on http://localhost:5000');
+                    console.error('Prediction error:', result.error);
+                }
+            } catch (error) {
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                alert('⚠️ Could not connect to the prediction server.\n\nPlease ensure:\n1. Flask server is running (python app.py)\n2. Server is accessible at http://localhost:5000\n3. Model is loaded correctly\n\nError: ' + error.message);
+                console.error('Connection error:', error);
+            }
         });
     </script>
 </body>
