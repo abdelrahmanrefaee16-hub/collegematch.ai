@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Results - Academic Future Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="results-container">
+        <div class="questionnaire-header">
+            <h1>Your Results, <span id="results-user-name"></span></h1>
+            <p>Based on your academic profile and lifestyle factors</p>
+        </div>
+
+        <div class="card results-card">
+            <div class="card-header text-center">
+                <div class="outcome-icon" id="outcome-icon"></div>
+                <h2 class="outcome-title" id="outcome-title"></h2>
+                <p class="card-description" id="outcome-message"></p>
+            </div>
+            <div class="card-content">
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>Success Probability</span>
+                        <span id="percentage-value" class="percentage-value"></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h3>What does this mean?</h3>
+                    <p>This prediction is based on statistical analysis of your academic performance, lifestyle habits, and other factors. It represents a probability, not a certainty. Your future is in your hands, and positive changes can significantly improve your outcomes.</p>
+                </div>
+
+                <a href="recommendations.html" class="btn btn-primary btn-full">View Recommendations</a>
+            </div>
+        </div>
+
+        <div class="factor-grid">
+            <div class="card factor-card">
+                <div class="factor-title academic">Academic Factors</div>
+                <p>Semester grades and previous qualifications</p>
+            </div>
+            <div class="card factor-card">
+                <div class="factor-title lifestyle">Lifestyle Factors</div>
+                <p>Age, marital status, and student type</p>
+            </div>
+            <div class="card factor-card">
+                <div class="factor-title support">Support Factors</div>
+                <p>Family background and financial status</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            // Get stored data
+            const userName = sessionStorage.getItem('userName');
+            const predictionResult = JSON.parse(sessionStorage.getItem('predictionResult'));
+            
+            if (!userName || !predictionResult) {
+                window.location.href = 'signup.html';
+                return;
+            }
+            
+            // Display results
+            displayResults(userName, predictionResult);
+        });
+
+        function displayResults(userName, predictionResult) {
+            const { outcome, percentage } = predictionResult;
+            
+            // Update user name
+            document.getElementById('results-user-name').textContent = userName;
+            
+            // Update outcome icon
+            const outcomeIcon = document.getElementById('outcome-icon');
+            const outcomeClass = outcome === 'Graduate' ? 'graduate' : outcome === 'Remain Enrolled' ? 'enrolled' : 'dropout';
+            
+            let iconSVG = '';
+            if (outcome === 'Graduate') {
+                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #16a34a;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>';
+            } else if (outcome === 'Remain Enrolled') {
+                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ca8a04;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>';
+            } else {
+                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #dc2626;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+            }
+            outcomeIcon.innerHTML = iconSVG;
+            
+            // Update outcome title
+            const outcomeTitle = document.getElementById('outcome-title');
+            outcomeTitle.textContent = `Predicted Outcome: ${outcome}`;
+            outcomeTitle.className = `outcome-title ${outcomeClass}`;
+            
+            // Update outcome message
+            const outcomeMessage = document.getElementById('outcome-message');
+            let message = '';
+            if (outcome === 'Graduate') {
+                message = 'Congratulations! Based on your responses, our analysis predicts that you are on track to successfully graduate.';
+            } else if (outcome === 'Remain Enrolled') {
+                message = 'Our analysis suggests you will likely remain enrolled, but there may be some challenges ahead. Let\'s work on improving your outcomes.';
+            } else {
+                message = 'Our analysis indicates some serious concerns. However, with the right changes and support, you can turn this around.';
+            }
+            outcomeMessage.textContent = message;
+            
+            // Update percentage
+            const percentageValue = document.getElementById('percentage-value');
+            percentageValue.textContent = `${percentage}%`;
+            percentageValue.className = `percentage-value ${outcomeClass}`;
+            
+            // Update progress bar
+            const progressFill = document.getElementById('progress-fill');
+            progressFill.className = `progress-fill ${outcomeClass}`;
+            setTimeout(() => {
+                progressFill.style.width = `${percentage}%`;
+            }, 100);
+        }
+    </script>
+</body>
+</html>

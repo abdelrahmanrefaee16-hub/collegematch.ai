@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations - Academic Future Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .recommendations-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .questionnaire-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .questionnaire-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .questionnaire-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .card-header h2 {
+            font-size: 1.75rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .alert-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 25px;
+        }
+
+        .alert-box.success {
+            background: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+
+        .alert-box.danger {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-box svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .alert-box.success svg {
+            color: #22c55e;
+        }
+
+        .alert-box.danger svg {
+            color: #ef4444;
+        }
+
+        .alert-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+
+        .alert-box p {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .recommendations-section {
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .recommendations-section h2 {
+            font-size: 1.75rem;
+            color: white;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+
+        .rec-card {
+            padding: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .rec-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .rec-card.high {
+            border-left: 4px solid #ef4444;
+        }
+
+        .rec-card.medium {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .rec-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .rec-card .card-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .rec-card .card-content p {
+            color: #4b5563;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .success-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 100%;
+        }
+
+        .success-category h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+
+        .category-academic {
+            color: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .category-wellbeing {
+            color: #10b981;
+            border-color: #10b981;
+        }
+
+        .category-resources {
+            color: #f59e0b;
+            border-color: #f59e0b;
+        }
+
+        .category-financial {
+            color: #8b5cf6;
+            border-color: #8b5cf6;
+        }
+
+        .success-category ul {
+            list-style: none;
+        }
+
+        .success-category li {
+            padding: 8px 0;
+            color: #4b5563;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .success-category li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-size: 1rem;
+            border: 2px solid;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            border-color: #5568d3;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .btn-outline:hover {
+            background: transparent;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .questionnaire-header h1 {
+                font-size: 2rem;
+            }
+
+            .rec-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .success-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="recommendations-container">
+        <div class="questionnaire-header">
+            <h1>Your Personalized Recommendations</h1>
+            <p>Follow these evidence-based strategies to improve your academic success</p>
+        </div>
+
+        <div id="outcome-alert"></div>
+        <div id="high-priority-recs"></div>
+        <div id="medium-priority-recs"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Key Success Factors</h2>
+            </div>
+            <div class="card-content">
+                <div class="success-grid">
+                    <div class="success-category">
+                        <h4 class="category-academic">Academic Excellence</h4>
+                        <ul>
+                            <li>Attend every class session</li>
+                            <li>Complete assignments on time</li>
+                            <li>Participate actively in discussions</li>
+                            <li>Visit professors during office hours</li>
+                            <li>Form or join study groups</li>
+                        </ul>
+                    </div>
+                    <div class="success-category">
+                        <h4 class="category-wellbeing">Personal Well-being</h4>
+                        <ul>
+                            <li>Get adequate sleep (7-9 hours)</li>
+                            <li>Exercise regularly</li>
+                            <li>Maintain social connections</li>
+                            <li>Practice stress management</li>
+                            <li>Seek counseling when needed</li>
+                        </ul>
+                    </div>
+                    <div class="success-category">
+                        <h4 class="category-resources">Resource Utilization</h4>
+                        <ul>
+                            <li>Use tutoring centers and writing labs</li>
+                            <li>Access library resources</li>
+                            <li>Meet with academic advisors</li>
+                            <li>Explore campus workshops</li>
+                            <li>Join academic support programs</li>
+                        </ul>
+                    </div>
+                    <div class="success-category">
+                        <h4 class="category-financial">Financial Stability</h4>
+                        <ul>
+                            <li>Keep tuition payments current</li>
+                            <li>Apply for scholarships and grants</li>
+                            <li>Work with financial aid office</li>
+                            <li>Budget expenses carefully</li>
+                            <li>Explore emergency assistance if needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <a href="questionnaire.html" class="btn btn-outline">Retake Assessment</a>
+            <a href="index.html" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Generate Recommendations
+        function generateRecommendations(data, predictionResult) {
+            const recommendations = [];
+            const { outcome } = predictionResult;
+            
+            // Grade-based recommendations
+            const firstSemester = parseFloat(data.firstSemesterGrade) || 0;
+            const secondSemester = parseFloat(data.secondSemesterGrade) || 0;
+            const averageGrade = (firstSemester + secondSemester) / 2;
+            
+            if (averageGrade < 10) {
+                recommendations.push({
+                    icon: '📚',
+                    title: 'Urgent: Seek Academic Support Immediately',
+                    description: 'Your grades are critically low. Schedule meetings with professors, join tutoring programs, and consider reducing course load if possible.',
+                    priority: 'high'
+                });
+            } else if (averageGrade < 14) {
+                recommendations.push({
+                    icon: '📚',
+                    title: 'Improve Your Academic Performance',
+                    description: 'Focus on better study techniques, attend all classes, and don\'t hesitate to ask questions. Form study groups with high-performing peers.',
+                    priority: 'high'
+                });
+            } else if (averageGrade >= 16) {
+                recommendations.push({
+                    icon: '🎓',
+                    title: 'Maintain Your Excellent Performance',
+                    description: 'You\'re doing great! Continue your current study habits and consider mentoring other students or pursuing advanced coursework.',
+                    priority: 'medium'
+                });
+            }
+            
+            // Grade improvement trend
+            if (secondSemester > firstSemester + 1) {
+                recommendations.push({
+                    icon: '📈',
+                    title: 'Keep Up Your Positive Trajectory',
+                    description: 'Your grades are improving! Whatever changes you made are working. Stay consistent with these successful strategies.',
+                    priority: 'medium'
+                });
+            } else if (firstSemester > secondSemester + 1) {
+                recommendations.push({
+                    icon: '🎯',
+                    title: 'Address Your Declining Performance',
+                    description: 'Your grades dropped in the second semester. Identify what changed - are you facing new challenges? Seek help early.',
+                    priority: 'high'
+                });
+            }
+            
+            // Tuition recommendations
+            if (data.tuitionUpToDate === 'no') {
+                recommendations.push({
+                    icon: '💰',
+                    title: 'Resolve Tuition Issues Urgently',
+                    description: 'Outstanding tuition can lead to enrollment holds. Contact the financial aid office immediately to explore payment plans, scholarships, or emergency grants.',
+                    priority: 'high'
+                });
+            }
+            
+            // Age-based recommendations
+            const age = parseFloat(data.enrollmentAge) || 0;
+            if (age < 18) {
+                recommendations.push({
+                    icon: '👥',
+                    title: 'Seek Additional Support Systems',
+                    description: 'As a younger student, connect with academic advisors regularly and consider finding a mentor to navigate college life.',
+                    priority: 'medium'
+                });
+            } else if (age > 25) {
+                recommendations.push({
+                    icon: '👥',
+                    title: 'Connect with Non-Traditional Student Resources',
+                    description: 'Many universities have resources specifically for adult learners. Join support groups to balance education with other life responsibilities.',
+                    priority: 'medium'
+                });
+            }
+            
+            // Displaced status
+            if (data.displaced === 'yes') {
+                recommendations.push({
+                    icon: '❤️',
+                    title: 'Access Mental Health and Support Services',
+                    description: 'Displacement can be traumatic. Utilize counseling services, connect with student support programs, and don\'t hesitate to ask for accommodations.',
+                    priority: 'high'
+                });
+            }
+            
+            // Special needs
+            if (data.specialNeeds === 'yes') {
+                recommendations.push({
+                    icon: '💡',
+                    title: 'Utilize Disability Services',
+                    description: 'Register with your institution\'s disability services office to access accommodations, assistive technology, and specialized support.',
+                    priority: 'high'
+                });
+            }
+            
+            // International student
+            if (data.studentType === 'international') {
+                recommendations.push({
+                    icon: '🌍',
+                    title: 'Engage with International Student Services',
+                    description: 'Connect with international student offices for visa support, cultural adjustment resources, and networking opportunities.',
+                    priority: 'medium'
+                });
+            }
+            
+            // Marital status
+            if (data.maritalStatus !== 'single') {
+                recommendations.push({
+                    icon: '👨‍👩‍👧',
+                    title: 'Balance Family and Academic Commitments',
+                    description: 'Communicate with your family about study needs, establish clear boundaries for study time, and explore family-friendly campus resources.',
+                    priority: 'medium'
+                });
+            }
+            
+            // Previous qualification
+            if (data.previousQualification === 'high-school' || data.previousQualification === 'vocational') {
+                recommendations.push({
+                    icon: '📖',
+                    title: 'Build Strong Academic Foundations',
+                    description: 'As this may be your first university experience, take advantage of academic skills workshops, writing centers, and foundational courses.',
+                    priority: 'medium'
+                });
+            }
+            
+            // General recommendations
+            if (outcome === 'Drop Out' || outcome === 'Remain Enrolled') {
+                recommendations.push({
+                    icon: '⏰',
+                    title: 'Create a Structured Study Schedule',
+                    description: 'Develop a weekly schedule that includes dedicated study blocks for each course, breaks, and personal time. Stick to it consistently.',
+                    priority: 'high'
+                });
+            }
+            
+            // Display recommendations
+            displayRecommendations(recommendations, outcome);
+        }
+
+        // Display Recommendations
+        function displayRecommendations(recommendations, outcome) {
+            const highPriority = recommendations.filter(r => r.priority === 'high');
+            const mediumPriority = recommendations.filter(r => r.priority === 'medium');
+            
+            // Outcome alert
+            const outcomeAlert = document.getElementById('outcome-alert');
+            let alertHTML = '';
+            
+            if (outcome === 'Graduate') {
+                alertHTML = `
+                    <div class="card alert-box success">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        </svg>
+                        <div>
+                            <h3>You're on the Right Track!</h3>
+                            <p>Your current performance and circumstances indicate strong potential for graduation. 
+                            The recommendations below will help you maintain your success and potentially achieve even greater outcomes.</p>
+                        </div>
+                    </div>
+                `;
+            } else if (outcome === 'Drop Out') {
+                alertHTML = `
+                    <div class="card alert-box danger">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>
+                            <h3>Immediate Action Required</h3>
+                            <p>Based on your responses, there are serious concerns about your academic progress. 
+                            However, it's not too late to turn things around. Focus on the high-priority recommendations below.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (alertHTML) {
+                outcomeAlert.innerHTML = alertHTML;
+            }
+            
+            // High priority recommendations
+            const highPrioritySection = document.getElementById('high-priority-recs');
+            if (highPriority.length > 0) {
+                let html = '<div class="recommendations-section"><h2>High Priority Actions</h2><div class="rec-grid">';
+                highPriority.forEach(rec => {
+                    html += `
+                        <div class="card rec-card high">
+                            <div class="card-header">
+                                <span style="font-size: 1.5rem;">${rec.icon}</span>
+                                <h3>${rec.title}</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>${rec.description}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+                highPrioritySection.innerHTML = html;
+            } else {
+                highPrioritySection.innerHTML = '';
+            }
+            
+            // Medium priority recommendations
+            const mediumPrioritySection = document.getElementById('medium-priority-recs');
+            if (mediumPriority.length > 0) {
+                let html = '<div class="recommendations-section"><h2>Additional Recommendations</h2><div class="rec-grid">';
+                mediumPriority.forEach(rec => {
+                    html += `
+                        <div class="card rec-card medium">
+                            <div class="card-header">
+                                <span style="font-size: 1.5rem;">${rec.icon}</span>
+                                <h3>${rec.title}</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>${rec.description}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+                mediumPrioritySection.innerHTML = html;
+            } else {
+                mediumPrioritySection.innerHTML = '';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            // Get stored data
+            const questionnaireData = JSON.parse(sessionStorage.getItem('questionnaireData'));
+            const predictionResult = JSON.parse(sessionStorage.getItem('predictionResult'));
+            
+            if (!questionnaireData || !predictionResult) {
+                window.location.href = 'signup.html';
+                return;
+            }
+            
+            // Generate and display recommendations
+            generateRecommendations(questionnaireData, predictionResult);
+        });
+    </script>
+</body>
+</html>

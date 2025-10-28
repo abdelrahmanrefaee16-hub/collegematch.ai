@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire - Academic Future Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <style>
+        .slider-container {
+            margin-top: 10px;
+        }
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="questionnaire-container">
+        <div class="questionnaire-header">
+            <h1>Welcome, <span id="user-name"></span>!</h1>
+            <p>Answer the following questions to help us predict your academic outcome</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Academic Assessment Questionnaire</h2>
+                <p class="card-description">Please provide accurate information for the best prediction</p>
+            </div>
+            <div class="card-content">
+                <form id="questionnaire-form">
+                    <!-- Gender -->
+                    <div class="form-group">
+                        <label>🧍‍♂️ What is your gender?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="male" required>
+                                <span>Male</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="female">
+                                <span>Female</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Nationality -->
+                    <div class="form-group">
+                        <label for="nationality">🗺️ What is your nationality?</label>
+                        <select id="nationality" required>
+                            <option value="">Select nationality</option>
+                            <option value="portuguese">Portuguese</option>
+                            <option value="european">European (Spain, France, Italy, Germany, etc.)</option>
+                            <option value="portuguese-africa">Portuguese-speaking Africa (Angola, Mozambique, Cape Verde, etc.)</option>
+                            <option value="latin-america">Latin America (Brazil, Argentina, etc.)</option>
+                            <option value="other">Other (Asia, North America, rest of the world)</option>
+                        </select>
+                    </div>
+
+                    <!-- Parent Occupation -->
+                    <div class="form-group">
+                        <label for="parentOccupation">👩‍👩‍👦 What is your father's or mother's occupation?</label>
+                        <select id="parentOccupation" required>
+                            <option value="">Select parent occupation</option>
+                            <option value="0">Student / Unemployed / Missing / Other</option>
+                            <option value="1">Armed Forces & Leadership (military, police, senior government)</option>
+                            <option value="2">High-Skilled Professionals (scientists, doctors, professors, engineers, teachers)</option>
+                            <option value="3">Technicians & Intermediate Professionals (nurses, lab techs, IT technicians)</option>
+                            <option value="4">Administrative & Office Workers (clerks, secretaries, office assistants)</option>
+                            <option value="5">Service Workers & Sales (shopkeepers, waiters, hairdressers)</option>
+                            <option value="6">Agriculture & Farming (farmers, animal caretakers, rural workers)</option>
+                            <option value="7">Skilled Manual Workers (construction, electricians, plumbers)</option>
+                            <option value="8">Machine Operators & Drivers (truck/bus drivers, mechanics)</option>
+                            <option value="9">Unskilled / Manual Labor (cleaners, helpers, factory laborers)</option>
+                        </select>
+                    </div>
+
+                    <!-- Marital Status -->
+                    <div class="form-group">
+                        <label for="maritalStatus">💍 What is your marital status?</label>
+                        <select id="maritalStatus" required>
+                            <option value="">Select marital status</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="widowed">Widowed</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="separated">Legally Separated</option>
+                        </select>
+                    </div>
+
+                    <!-- Student Type -->
+                    <div class="form-group">
+                        <label>🌍 Are you an international or national student?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="studentType" value="national" required>
+                                <span>National (Portuguese student)</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="studentType" value="international">
+                                <span>International student</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Previous Qualification -->
+                    <div class="form-group">
+                        <label for="previousQualification">🎓 What is your highest previous qualification?</label>
+                        <select id="previousQualification" required>
+                            <option value="">Select previous qualification</option>
+                            <option value="0">Basic / Incomplete Education (did not finish high school)</option>
+                            <option value="1">Secondary Complete (finished high school)</option>
+                            <option value="2">Some Higher Education / Technical Training</option>
+                            <option value="3">Bachelor's Degree</option>
+                            <option value="4">Master's or Doctorate</option>
+                        </select>
+                    </div>
+
+                    <!-- Enrollment Age -->
+                    <div class="form-group">
+                        <label for="enrollmentAge">👶 How old were you when you enrolled in this course?</label>
+                        <div class="slider-container">
+                            <input type="range" id="enrollmentAge" class="slider" min="17" max="60" value="19" required>
+                            <span class="slider-value" id="enrollmentAgeValue">19</span>
+                        </div>
+                    </div>
+
+                    <!-- Tuition Up To Date -->
+                    <div class="form-group">
+                        <label>💰 Are your tuition fees up to date?</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="tuitionUpToDate" value="yes">
+                                <span>✅ Yes (fees are paid and current)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Displaced -->
+                    <div class="form-group">
+                        <label>🏚️ Have you been displaced from your home region?</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="displaced" value="yes">
+                                <span>✅ Yes (displaced from home region)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Special Needs -->
+                    <div class="form-group">
+                        <label>🧩 Do you have any educational special needs?</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="specialNeeds" value="yes">
+                                <span>✅ Yes (special educational needs)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Admission Grade -->
+                    <div class="form-group">
+                        <label for="admissionGrade">🎯 What was your admission grade? (0–20)</label>
+                        <div class="slider-container">
+                            <input type="range" id="admissionGrade" class="slider" min="0" max="20" step="0.1" value="15.0" required>
+                            <span class="slider-value" id="admissionGradeValue">15.0</span>
+                        </div>
+                    </div>
+
+                    <!-- First Semester Grade -->
+                    <div class="form-group">
+                        <label for="firstSemesterGrade">📘 What was your grade average in the 1st semester? (0–20)</label>
+                        <div class="slider-container">
+                            <input type="range" id="firstSemesterGrade" class="slider" min="0" max="20" step="0.1" value="13.5" required>
+                            <span class="slider-value" id="firstSemesterGradeValue">13.5</span>
+                        </div>
+                    </div>
+
+                    <!-- First Semester Approved -->
+                    <div class="form-group">
+                        <label for="firstSemesterApproved">📕 How many curricular units did you pass in the 1st semester? (0–10)</label>
+                        <div class="slider-container">
+                            <input type="range" id="firstSemesterApproved" class="slider" min="0" max="10" step="1" value="6" required>
+                            <span class="slider-value" id="firstSemesterApprovedValue">6</span>
+                        </div>
+                    </div>
+
+                    <!-- Second Semester Grade -->
+                    <div class="form-group">
+                        <label for="secondSemesterGrade">📗 What was your grade average in the 2nd semester? (0–20)</label>
+                        <div class="slider-container">
+                            <input type="range" id="secondSemesterGrade" class="slider" min="0" max="20" step="0.1" value="14.0" required>
+                            <span class="slider-value" id="secondSemesterGradeValue">14.0</span>
+                        </div>
+                    </div>
+
+                    <!-- Second Semester Approved -->
+                    <div class="form-group">
+                        <label for="secondSemesterApproved">📙 How many curricular units did you pass in the 2nd semester? (0–10)</label>
+                        <div class="slider-container">
+                            <input type="range" id="secondSemesterApproved" class="slider" min="0" max="10" step="1" value="7" required>
+                            <span class="slider-value" id="secondSemesterApprovedValue">7</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Submit & Get Prediction</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update slider values
+        function updateSliderValue(sliderId, displayId) {
+            const slider = document.getElementById(sliderId);
+            const display = document.getElementById(displayId);
+            slider.addEventListener('input', function() {
+                display.textContent = this.value;
+            });
+        }
+
+        updateSliderValue('enrollmentAge', 'enrollmentAgeValue');
+        updateSliderValue('admissionGrade', 'admissionGradeValue');
+        updateSliderValue('firstSemesterGrade', 'firstSemesterGradeValue');
+        updateSliderValue('firstSemesterApproved', 'firstSemesterApprovedValue');
+        updateSliderValue('secondSemesterGrade', 'secondSemesterGradeValue');
+        updateSliderValue('secondSemesterApproved', 'secondSemesterApprovedValue');
+
+        // Prediction Algorithm - Updated with new inputs
+        function calculatePrediction(data) {
+            let score = 0;
+            
+            // First Semester Grade (0-20) - 25 points
+            const firstSemester = parseFloat(data.firstSemesterGrade) || 0;
+            score += (firstSemester / 20) * 25;
+            
+            // Second Semester Grade (0-20) - 25 points
+            const secondSemester = parseFloat(data.secondSemesterGrade) || 0;
+            score += (secondSemester / 20) * 25;
+            
+            // Admission Grade - 10 points
+            const admissionGrade = parseFloat(data.admissionGrade) || 0;
+            score += (admissionGrade / 20) * 10;
+            
+            // First Semester Approved Units - 8 points
+            const firstApproved = parseInt(data.firstSemesterApproved) || 0;
+            score += (firstApproved / 10) * 8;
+            
+            // Second Semester Approved Units - 8 points
+            const secondApproved = parseInt(data.secondSemesterApproved) || 0;
+            score += (secondApproved / 10) * 8;
+            
+            // Previous Qualification - 7 points
+            const prevQual = parseInt(data.previousQualification) || 0;
+            score += (prevQual / 4) * 7;
+            
+            // Tuition Up To Date - 5 points
+            if (data.tuitionUpToDate === 'yes') {
+                score += 5;
+            }
+            
+            // Parent Occupation - 4 points (higher occupation = more points)
+            const parentOcc = parseInt(data.parentOccupation) || 0;
+            if (parentOcc <= 2) {
+                score += 4;
+            } else if (parentOcc <= 4) {
+                score += 3;
+            } else if (parentOcc <= 6) {
+                score += 2;
+            } else {
+                score += 1;
+            }
+            
+            // Enrollment Age - 3 points (ideal: 18-22)
+            const age = parseFloat(data.enrollmentAge) || 0;
+            if (age >= 18 && age <= 22) {
+                score += 3;
+            } else if (age < 18 || (age > 22 && age <= 25)) {
+                score += 2;
+            } else {
+                score += 1;
+            }
+            
+            // Student Type - 2 points
+            if (data.studentType === 'national') {
+                score += 2;
+            } else {
+                score += 1;
+            }
+            
+            // Marital Status - 1 point
+            if (data.maritalStatus === 'single') {
+                score += 1;
+            }
+            
+            // Displaced - deduct 1 point if displaced
+            if (data.displaced !== 'yes') {
+                score += 1;
+            }
+            
+            // Special Needs - neutral (no points added/subtracted)
+            
+            // Calculate percentage and determine outcome
+            const percentage = Math.min(Math.round(score), 100);
+            
+            let outcome;
+            if (percentage >= 70) {
+                outcome = 'Graduate';
+            } else if (percentage >= 45) {
+                outcome = 'Remain Enrolled';
+            } else {
+                outcome = 'Drop Out';
+            }
+            
+            return { outcome, percentage };
+        }
+
+        // Load user name from sessionStorage
+        window.addEventListener('DOMContentLoaded', function() {
+            const userName = sessionStorage.getItem('userName');
+            if (userName) {
+                document.getElementById('user-name').textContent = userName;
+            } else {
+                window.location.href = 'signup.html';
+            }
+        });
+
+        document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect all form data
+            const questionnaireData = {
+                gender: document.querySelector('input[name="gender"]:checked').value,
+                nationality: document.getElementById('nationality').value,
+                parentOccupation: document.getElementById('parentOccupation').value,
+                maritalStatus: document.getElementById('maritalStatus').value,
+                studentType: document.querySelector('input[name="studentType"]:checked').value,
+                previousQualification: document.getElementById('previousQualification').value,
+                enrollmentAge: document.getElementById('enrollmentAge').value,
+                tuitionUpToDate: document.getElementById('tuitionUpToDate').checked ? 'yes' : 'no',
+                displaced: document.getElementById('displaced').checked ? 'yes' : 'no',
+                specialNeeds: document.getElementById('specialNeeds').checked ? 'yes' : 'no',
+                admissionGrade: document.getElementById('admissionGrade').value,
+                firstSemesterGrade: document.getElementById('firstSemesterGrade').value,
+                firstSemesterApproved: document.getElementById('firstSemesterApproved').value,
+                secondSemesterGrade: document.getElementById('secondSemesterGrade').value,
+                secondSemesterApproved: document.getElementById('secondSemesterApproved').value
+            };
+            
+            // Store data in sessionStorage
+            sessionStorage.setItem('questionnaireData', JSON.stringify(questionnaireData));
+            
+            // Calculate prediction
+            const predictionResult = calculatePrediction(questionnaireData);
+            sessionStorage.setItem('predictionResult', JSON.stringify(predictionResult));
+            
+            // Redirect to results
+            window.location.href = 'results.html';
+        });
+    </script>
+</body>
+</html>
