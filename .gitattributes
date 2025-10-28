@@ -1,80 +1,854 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-from flask import Flask, g, render_template_string, request, redirect, url_for, session, jsonify
-import sqlite3
-from werkzeug.security import generate_password_hash, check_password_hash
-import os
-import re
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Future Predictor</title>
+    <style>
+        /* ===== CSS RESET & BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey'
-DATABASE = 'college_app.db'
+        /* ===== HEADER & NAVIGATION ===== */
+        header {
+            background-color: #52a845;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
 
-# Database setup
-def get_db():
-if 'db' not in g:
-g.db = sqlite3.connect(DATABASE)
-g.db.row_factory = sqlite3.Row
-return g.db
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
 
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
 
-@app.teardown_appcontext
-def close_db(error):
-db = g.pop('db', None)
-if db is not None:
-db.close()
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
 
+        .sign-up-btn {
+            position: absolute;
+            right: 0;
+            background-color: white;
+            color: #333;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-def init_db():
-db = get_db()
-db.executescript('''
-CREATE TABLE IF NOT EXISTS users (
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-email TEXT UNIQUE NOT NULL,
-password_hash TEXT NOT NULL,
-sat INTEGER,
-gpa REAL,
-budget_min INTEGER,
-budget_max INTEGER,
-preferred_location TEXT
-);
-''')
-db.commit()
+        .sign-up-btn:hover {
+            transform: translateY(-2px);
+        }
 
+        .sign-up-btn::before {
+            content: "👤";
+        }
 
-# Sample colleges
-colleges = [
-{"name": "Harvard University", "location": "USA", "tuition": 54000, "min_gpa": 3.9, "min_sat": 1500},
-{"name": "University of Toronto", "location": "Canada", "tuition": 45000, "min_gpa": 3.7, "min_sat": 1400},
-{"name": "Oxford University", "location": "UK", "tuition": 40000, "min_gpa": 3.8, "min_sat": 1450},
-{"name": "Tokyo University", "location": "Japan", "tuition": 30000, "min_gpa": 3.6, "min_sat": 1350}
-]
+        /* Mobile menu toggle */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
 
+        /* ===== MAIN CONTENT CONTAINER ===== */
+        main {
+            min-height: calc(100vh - 140px);
+        }
 
-# Routes
-@app.before_first_request
-def setup():
-init_db()
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
 
+        /* ===== HOME PAGE (Hero Section) ===== */
+        .hero-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 70vh;
+            background: linear-gradient(135deg, #e8f5e6 0%, #f0f9ef 100%);
+        }
 
-@app.route('/')
-def home():
-return render_template_string('''
-<h1>College Match App</h1>
-<p><a href="/register">Register</a> | <a href="/login">Login</a></p>
-''')
+        .hero-content h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            color: #1a1a1a;
+        }
 
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-if request.method == 'POST':
-email = request.form['email']
-password = request.form['password']
-db = get_db()
-try:
-db.execute('INSERT INTO users (email, password_hash) VALUES (?, ?)', (email, generate_password_hash(password)))
-db.commit()
-return redirect(url_for('login'))
-except sqlite3.IntegrityError:
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #52a845;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(82, 168, 69, 0.3);
+        }
+
+        /* ===== SIGN UP PAGE ===== */
+        .signup-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .signup-form-container {
+            max-width: 500px;
+        }
+
+        .signup-form-container h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .signup-form-container p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #52a845;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background-color: #52a845;
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #458a3a;
+        }
+
+        .signup-illustration {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ===== QUESTIONNAIRE PAGE ===== */
+        .questionnaire-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .questionnaire-section > p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .form-section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2.5rem;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .form-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-section .section-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* ===== RESULTS PAGE ===== */
+        .results-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 70vh;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23f5f5f5" width="1200" height="800"/></svg>') center/cover;
+        }
+
+        .results-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+        }
+
+        .results-card h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .prediction-percentage {
+            font-size: 5rem;
+            font-weight: 700;
+            color: #52a845;
+            margin: 1.5rem 0;
+        }
+
+        .prediction-label {
+            display: inline-block;
+            background-color: #52a845;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .results-card p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        /* ===== RECOMMENDATIONS PAGE ===== */
+        .recommendations-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .strategy-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        .strategy-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #52a845;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .strategy-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .strategy-card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .strategy-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .strategy-card li {
+            padding-left: 1.5rem;
+            margin-bottom: 0.8rem;
+            position: relative;
+            color: #555;
+        }
+
+        .strategy-card li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #52a845;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background-color: #52a845;
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+
+        .visily-credit {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .strategies-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section,
+            .signup-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .strategies-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .menu-toggle {
+                display: block;
+                position: absolute;
+                right: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .sign-up-btn {
+                position: static;
+                margin-top: 1rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 375px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .prediction-percentage {
+                font-size: 4rem;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+            }
+        }
+
+        /* ===== PAGE VISIBILITY ===== */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <nav>
+            <button class="menu-toggle" aria-label="Toggle menu">☰</button>
+            <ul class="nav-links">
+                <li><a href="#" data-page="home">Home</a></li>
+                <li><a href="#" data-page="signup">Sign Up</a></li>
+                <li><a href="#" data-page="questionnaire">Questionnaire</a></li>
+                <li><a href="#" data-page="results">Results</a></li>
+                <li><a href="#" data-page="recommendations">Recommendations</a></li>
+            </ul>
+            <a href="#" class="sign-up-btn" data-page="signup">Sign Up</a>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <!-- HOME PAGE -->
+        <section id="home" class="page active">
+            <div class="hero-section container">
+                <div class="hero-content">
+                    <h1>Discover your academic future — find out if you'll graduate, stay enrolled, or drop out.</h1>
+                    <a href="#" class="cta-button" data-page="signup">Start Now</a>
+                </div>
+                <div class="hero-image">
+                    <svg width="400" height="400" viewBox="0 0 400 400">
+                        <rect fill="#e8f5e6" width="400" height="400" rx="20"/>
+                        <rect x="150" y="100" width="200" height="250" fill="#fff" rx="10"/>
+                        <rect x="170" y="120" width="80" height="60" fill="#52a845" opacity="0.3" rx="5"/>
+                        <rect x="270" y="120" width="60" height="60" fill="#52a845" opacity="0.5" rx="5"/>
+                        <rect x="170" y="200" width="160" height="40" fill="#ffd700" opacity="0.4" rx="5"/>
+                        <rect x="170" y="260" width="100" height="60" fill="#ff6b6b" opacity="0.3" rx="5"/>
+                        <circle cx="100" cy="320" r="30" fill="#52a845"/>
+                        <path d="M 70 350 Q 100 380 130 350" stroke="#52a845" fill="none" stroke-width="3"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- SIGN UP PAGE -->
+        <section id="signup" class="page">
+            <div class="signup-section container">
+                <div class="signup-form-container">
+                    <h2>Create Your Account</h2>
+                    <p>Join us to discover your academic future.</p>
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <label for="fullname">Full Name</label>
+                            <input type="text" id="fullname" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="john.doe@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="submit-btn">Create Account</button>
+                    </form>
+                </div>
+                <div class="signup-illustration">
+                    <svg width="400" height="400" viewBox="0 0 400 400">
+                        <rect x="100" y="120" width="250" height="180" fill="#2c3e50" rx="10"/>
+                        <rect x="110" y="130" width="230" height="140" fill="#ecf0f1" rx="5"/>
+                        <rect x="140" y="150" width="60" height="8" fill="#e74c3c" rx="4"/>
+                        <rect x="140" y="175" width="60" height="8" fill="#e74c3c" rx="4"/>
+                        <path d="M 320 200 Q 340 180 360 200 L 360 240 Q 340 260 320 240 Z" fill="#f4a460"/>
+                        <circle cx="340" cy="220" r="15" fill="#f4a460"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUESTIONNAIRE PAGE -->
+        <section id="questionnaire" class="page">
+            <div class="questionnaire-section container">
+                <h2>Academic Prediction Questionnaire</h2>
+                <p>Help us understand your academic journey by answering these questions.</p>
+
+                <form id="questionnaireForm">
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3>Personal Information</h3>
+                        <p class="section-description">Basic information about yourself.</p>
+                        
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="marital-status">Marital Status</label>
+                            <select id="marital-status" required>
+                                <option value="">Select Status</option>
+                                <option value="single">Single</option>
+                                <option value="married">Married</option>
+                                <option value="divorced">Divorced</option>
+                                <option value="widowed">Widowed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="student-type">Student Type</label>
+                            <select id="student-type" required>
+                                <option value="">Select Type</option>
+                                <option value="national">National</option>
+                                <option value="international">International</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Family Background -->
+                    <div class="form-section">
+                        <h3>Family Background</h3>
+                        <p class="section-description">Information about your family that may influence your academic journey.</p>
+                        
+                        <div class="form-group">
+                            <label for="father-occupation">Father's Occupation</label>
+                            <select id="father-occupation" required>
+                                <option value="">Select Occupation</option>
+                                <option value="professional">Professional (Doctor, Engineer, Lawyer)</option>
+                                <option value="business">Business Owner</option>
+                                <option value="skilled-worker">Skilled Worker</option>
+                                <option value="government">Government Employee</option>
+                                <option value="self-employed">Self-Employed</option>
+                                <option value="unemployed">Unemployed</option>
+                                <option value="retired">Retired</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mother-occupation">Mother's Occupation</label>
+                            <select id="mother-occupation" required>
+                                <option value="">Select Occupation</option>
+                                <option value="professional">Professional (Doctor, Engineer, Lawyer)</option>
+                                <option value="business">Business Owner</option>
+                                <option value="skilled-worker">Skilled Worker</option>
+                                <option value="government">Government Employee</option>
+                                <option value="self-employed">Self-Employed</option>
+                                <option value="homemaker">Homemaker</option>
+                                <option value="unemployed">Unemployed</option>
+                                <option value="retired">Retired</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Academic Information -->
+                    <div class="form-section">
+                        <h3>Academic Information</h3>
+                        <p class="section-description">Details about your current academic status and journey.</p>
+                        
+                        <div class="form-group">
+                            <label>Extracurricular Involvement:</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="sports" name="extracurricular" value="sports">
+                                    <label for="sports">Sports / Athletics</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="clubs" name="extracurricular" value="clubs">
+                                    <label for="clubs">Academic Clubs / Societies</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="volunteering" name="extracurricular" value="volunteering">
+                                    <label for="volunteering">Volunteering / Community Service</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="arts" name="extracurricular" value="arts">
+                                    <label for="arts">Arts / Music / Drama</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="none" name="extracurricular" value="none">
+                                    <label for="none">None</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="motivation">Overall Motivation Level for Studies</label>
+                            <select id="motivation" required>
+                                <option value="">Select Level</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Background Information -->
+                    <div class="form-section">
+                        <h3>Background Information</h3>
+                        <p class="section-description">General details about your background that might influence academic outcomes.</p>
+                        
+                        <div class="form-group">
+                            <label for="parent-education">Highest Education Level of Parents/Guardians</label>
+                            <select id="parent-education" required>
+                                <option value="">Select Level</option>
+                                <option value="less-than-high-school">Less than High School</option>
+                                <option value="high-school">High School Diploma</option>
+                                <option value="associate">Associate's Degree</option>
+                                <option value="bachelor">Bachelor's Degree</option>
+                                <option value="master">Master's Degree</option>
+                                <option value="doctorate">Doctorate/PhD</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tuition">Tuition Payment Status</label>
+                            <select id="tuition" required>
+                                <option value="">Select Status</option>
+                                <option value="fully-paid">Fully Paid (Scholarship/Grants)</option>
+                                <option value="partially-paid">Partially Paid</option>
+                                <option value="self-funded">Self-Funded</option>
+                                <option value="loan">Student Loan</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">View Results</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- RESULTS PAGE -->
+        <section id="results" class="page">
+            <div class="results-section container">
+                <div class="results-card">
+                    <h2>Your Predicted Academic Future:</h2>
+                    <div class="prediction-percentage" id="predictionPercentage">95%</div>
+                    <span class="prediction-label" id="predictionLabel">Graduate</span>
+                    <p id="predictionMessage">Your dedication is paying off! Keep up the great work and embrace every learning opportunity.</p>
+                    <a href="#" class="cta-button" data-page="recommendations">Get Personalized Recommendations</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- RECOMMENDATIONS PAGE -->
+        <section id="recommendations" class="page">
+            <div class="recommendations-section container">
+                <h2>Key Strategies for Your Success</h2>
+                
+                <div class="strategies-grid">
+                    <!-- Strategy 1 -->
+                    <div class="strategy-card">
+                        <div class="strategy-icon">📚</div>
+                        <h3>Effective Study Strategies</h3>
+                        <p>Maximize your learning efficiency and retention with proven study methods.</p>
+                        <ul>
+                            <li>Actively recall information instead of passive re-reading.</li>
+                            <li>Space out your study sessions over time (Spaced Repetition).</li>
+                            <li>Interleave different subjects to improve problem-solving skills.</li>
+                            <li>Use mind maps and visual aids to connect concepts.</li>
+                            <li>Explain concepts to others to solidify your understanding.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Strategy 2 -->
+                    <div class="strategy-card">
+                        <div class="strategy-icon">⏰</div>
+                        <h3>Time Management & Organization</h3>
+                        <p>Organize your academic and personal life for optimal productivity.</p>
+                        <ul>
+                            <li>Create a weekly study schedule and stick to it.</li>
+                            <li>Break down large tasks into smaller, manageable steps.</li>
+                            <li>Prioritize tasks using the Eisenhower Matrix (Urgent/Important).</li>
+                            <li>Avoid multitasking; focus on one task at a time.</li>
+                            <li>Schedule regular breaks to prevent burnout.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Strategy 3 -->
+                    <div class="strategy-card">
+                        <div class="strategy-icon">👥</div>
+                        <h3>Seeking Academic Support</h3>
+                        <p>Leverage available resources to overcome challenges and excel.</p>
+                        <ul>
+                            <li>Attend professor's office hours regularly for clarity and guidance.</li>
+                            <li>Join study groups to collaborate and share insights.</li>
+                            <li>Utilize campus tutoring services for challenging subjects.</li>
+                            <li>Seek guidance from academic advisors for course planning.</li>
+                            <li>Don't hesitate to ask questions in class or during discussions.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Strategy 4 -->
+                    <div class="strategy-card">
+                        <div class="strategy-icon">❤️</div>
+                        <h3>Well-being & Self-Care</h3>
+                        <p>Maintain a healthy balance to sustain long-term academic success.</p>
+                        <ul>
+                            <li>Get adequate sleep (7-9 hours) for optimal cognitive function.</li>
+                            <li>Exercise regularly to reduce stress and improve focus.</li>
+                            <li>Practice mindfulness or meditation for mental clarity.</li>
+                            <li>Maintain a balanced diet to fuel your brain.</li>
+                            <li>Build a support network of friends and family.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Strategy 5 -->
+                    <div class="strategy-card">
+                        <div class="strategy-icon">📈</div>
+                        <h3>Goal Setting & Motivation</h3>
+                        <p>Set clear objectives and maintain momentum throughout your journey.</p>
+                        <ul>
+                            <li>Set SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound).</li>
+                            <li>Track your progress and celebrate small wins.</li>
+                            <li>Visualize your success and stay connected to your purpose.</li>
+                            <li>Find an accountability partner or mentor.</li>
+                            <li>Reflect regularly on your growth and learning.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Strategy 6 -->
+                    <div class="strategy-card">
+                        <div class="strategy-icon">💡</div>
+                        <h3>Financial Planning</h3>
+                        <p>Manage your finances wisely to reduce stress and focus on studies.</p>
+                        <ul>
+                            <li>Create a realistic monthly budget and track expenses.</li>
