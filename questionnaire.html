@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire - Academic Future Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="questionnaire-container">
+        <div class="questionnaire-header">
+            <h1>Welcome, <span id="user-name"></span>!</h1>
+            <p>Answer the following questions to help us predict your academic outcome</p>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Academic Assessment Questionnaire</h2>
+                <p class="card-description">Please provide accurate information for the best prediction</p>
+            </div>
+            <div class="card-content">
+                <form id="questionnaire-form">
+                    <!-- Nationality -->
+                    <div class="form-group">
+                        <label for="nationality">What is your nationality?</label>
+                        <input type="text" id="nationality" placeholder="e.g., American, Portuguese, Brazilian" required>
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="form-group">
+                        <label>What is your gender?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="male" required>
+                                <span>Male</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="female">
+                                <span>Female</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="other">
+                                <span>Other</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Parent Occupation -->
+                    <div class="form-group">
+                        <label for="parentOccupation">What is your father's or mother's occupation?</label>
+                        <select id="parentOccupation" required>
+                            <option value="">Select parent occupation</option>
+                            <option value="professional">Professional (Doctor, Lawyer, Engineer)</option>
+                            <option value="manager">Manager/Executive</option>
+                            <option value="skilled">Skilled Worker (Teacher, Technician)</option>
+                            <option value="service">Service Worker</option>
+                            <option value="manual">Manual Labor</option>
+                            <option value="unemployed">Unemployed</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Marital Status -->
+                    <div class="form-group">
+                        <label for="maritalStatus">What is your marital status?</label>
+                        <select id="maritalStatus" required>
+                            <option value="">Select marital status</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="widowed">Widowed</option>
+                        </select>
+                    </div>
+
+                    <!-- Student Type -->
+                    <div class="form-group">
+                        <label>Are you an international or national student?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="studentType" value="national" required>
+                                <span>National Student</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="studentType" value="international">
+                                <span>International Student</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Previous Qualification -->
+                    <div class="form-group">
+                        <label for="previousQualification">What is your highest previous qualification?</label>
+                        <select id="previousQualification" required>
+                            <option value="">Select previous qualification</option>
+                            <option value="high-school">High School Diploma</option>
+                            <option value="vocational">Vocational Certificate</option>
+                            <option value="associate">Associate Degree</option>
+                            <option value="bachelor">Bachelor's Degree</option>
+                            <option value="masters">Master's Degree</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Enrollment Age -->
+                    <div class="form-group">
+                        <label for="enrollmentAge">How old were you when you enrolled in this course?</label>
+                        <input type="number" id="enrollmentAge" min="15" max="100" placeholder="e.g., 18" required>
+                    </div>
+
+                    <!-- Tuition Up To Date -->
+                    <div class="form-group">
+                        <label>Are your tuition fees up to date?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="tuitionUpToDate" value="yes" required>
+                                <span>Yes, fully paid</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tuitionUpToDate" value="scholarship">
+                                <span>On scholarship/financial aid</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tuitionUpToDate" value="no">
+                                <span>No, outstanding balance</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Displaced -->
+                    <div class="form-group">
+                        <label>Have you ever been displaced from your home or school?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="displaced" value="no" required>
+                                <span>No</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="displaced" value="yes">
+                                <span>Yes</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Special Needs -->
+                    <div class="form-group">
+                        <label>Do you have any educational special needs?</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="specialNeeds" value="no" required>
+                                <span>No</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="specialNeeds" value="yes">
+                                <span>Yes</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- First Semester Grade -->
+                    <div class="form-group">
+                        <label for="firstSemesterGrade">What was your grade average in the first semester? (0–20)</label>
+                        <input type="number" id="firstSemesterGrade" step="0.1" min="0" max="20" placeholder="e.g., 14.5" required>
+                    </div>
+
+                    <!-- Second Semester Grade -->
+                    <div class="form-group">
+                        <label for="secondSemesterGrade">What was your average grade in the second semester? (0–20)</label>
+                        <input type="number" id="secondSemesterGrade" step="0.1" min="0" max="20" placeholder="e.g., 15.0" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Submit & Get Prediction</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Prediction Algorithm
+        function calculatePrediction(data) {
+            let score = 0;
+            
+            // First Semester Grade (0-20) - 35 points
+            const firstSemester = parseFloat(data.firstSemesterGrade) || 0;
+            score += (firstSemester / 20) * 35;
+            
+            // Second Semester Grade (0-20) - 35 points
+            const secondSemester = parseFloat(data.secondSemesterGrade) || 0;
+            score += (secondSemester / 20) * 35;
+            
+            // Previous Qualification - 8 points
+            if (data.previousQualification === 'bachelor' || data.previousQualification === 'masters') {
+                score += 8;
+            } else if (data.previousQualification === 'high-school') {
+                score += 5;
+            } else {
+                score += 3;
+            }
+            
+            // Tuition Up To Date - 7 points
+            if (data.tuitionUpToDate === 'yes') {
+                score += 7;
+            } else if (data.tuitionUpToDate === 'scholarship') {
+                score += 6;
+            } else {
+                score += 2;
+            }
+            
+            // Parent Occupation - 5 points
+            if (data.parentOccupation === 'professional' || data.parentOccupation === 'manager') {
+                score += 5;
+            } else if (data.parentOccupation === 'skilled') {
+                score += 3;
+            } else {
+                score += 2;
+            }
+            
+            // Enrollment Age - 4 points (ideal: 18-22)
+            const age = parseFloat(data.enrollmentAge) || 0;
+            if (age >= 18 && age <= 22) {
+                score += 4;
+            } else if (age < 18 || (age > 22 && age <= 25)) {
+                score += 2;
+            } else {
+                score += 1;
+            }
+            
+            // Student Type - 3 points
+            if (data.studentType === 'national') {
+                score += 3;
+            } else {
+                score += 2;
+            }
+            
+            // Marital Status - 2 points
+            if (data.maritalStatus === 'single') {
+                score += 2;
+            } else {
+                score += 1;
+            }
+            
+            // Displaced - 1 point
+            if (data.displaced === 'no') {
+                score += 1;
+            }
+            
+            // Calculate percentage and determine outcome
+            const percentage = Math.min(Math.round(score), 100);
+            
+            let outcome;
+            if (percentage >= 70) {
+                outcome = 'Graduate';
+            } else if (percentage >= 45) {
+                outcome = 'Remain Enrolled';
+            } else {
+                outcome = 'Drop Out';
+            }
+            
+            return { outcome, percentage };
+        }
+
+        // Load user name from sessionStorage
+        window.addEventListener('DOMContentLoaded', function() {
+            const userName = sessionStorage.getItem('userName');
+            if (userName) {
+                document.getElementById('user-name').textContent = userName;
+            } else {
+                // Redirect to signup if no user data
+                window.location.href = 'signup.html';
+            }
+        });
+
+        document.getElementById('questionnaire-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect all form data
+            const questionnaireData = {
+                nationality: document.getElementById('nationality').value,
+                gender: document.querySelector('input[name="gender"]:checked').value,
+                parentOccupation: document.getElementById('parentOccupation').value,
+                maritalStatus: document.getElementById('maritalStatus').value,
+                studentType: document.querySelector('input[name="studentType"]:checked').value,
+                previousQualification: document.getElementById('previousQualification').value,
+                enrollmentAge: document.getElementById('enrollmentAge').value,
+                tuitionUpToDate: document.querySelector('input[name="tuitionUpToDate"]:checked').value,
+                displaced: document.querySelector('input[name="displaced"]:checked').value,
+                specialNeeds: document.querySelector('input[name="specialNeeds"]:checked').value,
+                firstSemesterGrade: document.getElementById('firstSemesterGrade').value,
+                secondSemesterGrade: document.getElementById('secondSemesterGrade').value
+            };
+            
+            // Store data in sessionStorage
+            sessionStorage.setItem('questionnaireData', JSON.stringify(questionnaireData));
+            
+            // Calculate prediction
+            const predictionResult = calculatePrediction(questionnaireData);
+            sessionStorage.setItem('predictionResult', JSON.stringify(predictionResult));
+            
+            // Redirect to results
+            window.location.href = 'results.html';
+        });
+    </script>
+</body>
+</html>
