@@ -8,7 +8,7 @@ The model predicts one of three outcomes:
 - 2 = "Graduate" (student will successfully complete the program)
 """
 # Import required libraries
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
 import numpy as np
 import os
@@ -25,8 +25,8 @@ except ImportError:
     import sys
     sys.exit(1)
 
-# Create Flask app with static folder configuration
-app = Flask(__name__, static_folder="static", static_url_path="")
+# Create Flask app - no static folder since HTML files are in root
+app = Flask(__name__)
 
 # Enable CORS
 CORS(app)
@@ -42,11 +42,40 @@ MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 MODEL_PATH_PKL = os.path.join(MODEL_DIR, "dropout_model_improved.pkl")
 MODEL_PATH_JOBLIB = os.path.join(MODEL_DIR, "dropout_model_improved.joblib")
 
+# Get the base directory where HTML files are located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Check common locations for HTML files
+POSSIBLE_HTML_DIRS = [
+    os.path.join(BASE_DIR, "static"),  # static folder (MOST COMMON)
+    BASE_DIR,  # Same directory as app.py
+    os.path.join(BASE_DIR, "templates"),  # templates folder
+    os.path.join(BASE_DIR, "frontend"),  # frontend folder
+    os.path.join(BASE_DIR, "html"),  # html folder
+]
+
+# Find where index.html actually is
+HTML_DIR = None
+for directory in POSSIBLE_HTML_DIRS:
+    if os.path.exists(os.path.join(directory, "index.html")):
+        HTML_DIR = directory
+        break
+
 # Debug: Print the paths being used
 print(f"🔍 Looking for model at:")
 print(f"   PKL:    {MODEL_PATH_PKL} (exists: {os.path.exists(MODEL_PATH_PKL)})")
 print(f"   JOBLIB: {MODEL_PATH_JOBLIB} (exists: {os.path.exists(MODEL_PATH_JOBLIB)})")
 print(f"🐍 Python version: {sys.version}")
+print(f"📁 Base directory: {BASE_DIR}")
+print(f"📁 Static folder: {os.path.join(BASE_DIR, 'static')}")
+print(f"📁 HTML directory: {HTML_DIR if HTML_DIR else 'NOT FOUND'}")
+
+if HTML_DIR:
+    print(f"✓ Found index.html at: {os.path.join(HTML_DIR, 'index.html')}")
+else:
+    print(f"✗ Could not find index.html in any of these locations:")
+    for d in POSSIBLE_HTML_DIRS:
+        print(f"   - {d}")
 
 def load_model_with_compatibility():
     """
@@ -132,18 +161,121 @@ except Exception as e:
 @app.route("/")
 def home():
     """Serve the main index.html page"""
+    if HTML_DIR is None:
+        return """
+        <h1>❌ HTML Files Not Found</h1>
+        <p>Could not locate index.html. Please check the server console for details.</p>
+        <p>Make sure your HTML files are in one of these locations:</p>
+        <ul>
+            <li>Same directory as app.py</li>
+            <li>static/ folder</li>
+            <li>templates/ folder</li>
+            <li>frontend/ folder</li>
+            <li>html/ folder</li>
+        </ul>
+        """, 404
     try:
-        return send_from_directory(app.static_folder, "index.html")
+        response = send_file(os.path.join(HTML_DIR, "index.html"))
+        # Disable caching for development
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
     except Exception as e:
-        return f"Error loading index.html: {e}. Make sure index.html exists in the static folder.", 404
+        return f"Error loading index.html: {e}. HTML directory: {HTML_DIR}", 404
 
-@app.route("/<path:path>")
-def static_files(path):
-    """Serve static files (CSS, JS, images, etc.)"""
+@app.route("/signup.html")
+def signup():
+    """Serve the signup page"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
     try:
-        return send_from_directory(app.static_folder, path)
+        response = send_file(os.path.join(HTML_DIR, "signup.html"))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
     except Exception as e:
-        return f"File not found: {path}", 404
+        return f"Error loading signup.html: {e}", 404
+
+@app.route("/questionnaire.html")
+def questionnaire():
+    """Serve the questionnaire page"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
+    try:
+        response = send_file(os.path.join(HTML_DIR, "questionnaire.html"))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    except Exception as e:
+        return f"Error loading questionnaire.html: {e}", 404
+
+@app.route("/results.html")
+def results():
+    """Serve the results page"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
+    try:
+        response = send_file(os.path.join(HTML_DIR, "results.html"))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    except Exception as e:
+        return f"Error loading results.html: {e}", 404
+
+@app.route("/recommendations.html")
+def recommendations():
+    """Serve the recommendations page"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
+    try:
+        response = send_file(os.path.join(HTML_DIR, "recommendations.html"))
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    except Exception as e:
+        return f"Error loading recommendations.html: {e}", 404
+
+@app.route("/css/<path:path>")
+def serve_css(path):
+    """Serve CSS files from css folder"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
+    try:
+        css_dir = os.path.join(HTML_DIR, "css")
+        response = send_from_directory(css_dir, path)
+        response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
+    except Exception as e:
+        return f"CSS file not found: {path}", 404
+
+@app.route("/js/<path:path>")
+def serve_js(path):
+    """Serve JavaScript files from js folder"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
+    try:
+        js_dir = os.path.join(HTML_DIR, "js")
+        return send_from_directory(js_dir, path)
+    except Exception as e:
+        return f"JavaScript file not found: {path}", 404
+
+@app.route("/images/<path:path>")
+def serve_images(path):
+    """Serve images from images folder"""
+    if HTML_DIR is None:
+        return "HTML files not found. Check server console.", 404
+    try:
+        images_dir = os.path.join(HTML_DIR, "images")
+        return send_from_directory(images_dir, path)
+    except Exception as e:
+        return f"Image file not found: {path}", 404
 
 # ============================================================================
 # PREDICTION API ENDPOINT
@@ -290,6 +422,14 @@ if __name__ == "__main__":
     print("🎓 ACADEMIC FUTURE PREDICTOR - Server Starting")
     print("="*70)
     print(f"📁 Model directory: {MODEL_DIR}")
+    print(f"📁 HTML files directory: {HTML_DIR if HTML_DIR else 'NOT FOUND ✗'}")
+    if HTML_DIR:
+        print(f"✓ HTML files found at: {HTML_DIR}")
+    else:
+        print(f"✗ HTML files NOT FOUND!")
+        print(f"   Please place your HTML files in one of these locations:")
+        for d in POSSIBLE_HTML_DIRS:
+            print(f"   - {d}")
     print(f"✓ Model status: {'Loaded ✓' if model else 'NOT LOADED ✗'}")
     if model:
         print(f"✓ Model features: {model.n_features_in_}")

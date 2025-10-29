@@ -3,8 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Results - Academic Future Predictor</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Your Results - keephope.ai</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d4a3e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 3rem 1.5rem;
+        }
+
+        .results-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .questionnaire-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .questionnaire-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .questionnaire-header p {
+            color: #d1d5db;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: rgba(45, 74, 62, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .results-card .card-header {
+            text-align: center;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .outcome-icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .outcome-icon svg {
+            width: 96px;
+            height: 96px;
+        }
+
+        .outcome-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .outcome-title.graduate {
+            color: #4ade80;
+        }
+
+        .outcome-title.enrolled {
+            color: #fbbf24;
+        }
+
+        .outcome-title.dropout {
+            color: #ef4444;
+        }
+
+        .card-description {
+            color: #d1d5db;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: #e5e7eb;
+            font-size: 1rem;
+        }
+
+        .percentage-value {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .percentage-value.graduate {
+            color: #4ade80;
+        }
+
+        .percentage-value.enrolled {
+            color: #fbbf24;
+        }
+
+        .percentage-value.dropout {
+            color: #ef4444;
+        }
+
+        .progress-bar {
+            height: 1.25rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 9999px;
+            overflow: hidden;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 1.5s ease-out;
+            width: 0;
+            border-radius: 9999px;
+        }
+
+        .progress-fill.graduate {
+            background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        .progress-fill.enrolled {
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+
+        .progress-fill.dropout {
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .info-box {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-box h3 {
+            color: #4ade80;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .info-box p {
+            color: #d1d5db;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #4ade80;
+            color: #1a1a1a;
+        }
+
+        .btn-primary:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .factor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .factor-card {
+            padding: 2rem;
+            text-align: center;
+            background: rgba(45, 74, 62, 0.3);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 1rem;
+            transition: all 0.3s;
+        }
+
+        .factor-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(74, 222, 128, 0.4);
+        }
+
+        .factor-card p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .factor-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .factor-title.academic {
+            color: #4ade80;
+        }
+
+        .factor-title.lifestyle {
+            color: #60a5fa;
+        }
+
+        .factor-title.support {
+            color: #a78bfa;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 2rem 1rem;
+            }
+
+            .questionnaire-header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .outcome-icon svg {
+                width: 72px;
+                height: 72px;
+            }
+
+            .outcome-title {
+                font-size: 1.5rem;
+            }
+
+            .factor-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="results-container">
@@ -82,11 +353,11 @@
             
             let iconSVG = '';
             if (outcome === 'Graduate') {
-                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #16a34a;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>';
+                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #4ade80;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>';
             } else if (outcome === 'Remain Enrolled') {
-                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ca8a04;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>';
+                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #fbbf24;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>';
             } else {
-                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #dc2626;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                iconSVG = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ef4444;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
             }
             outcomeIcon.innerHTML = iconSVG;
             
