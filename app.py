@@ -51,7 +51,7 @@ print(f"🐍 Python version: {sys.version}")
 def load_model_with_compatibility():
     """
     Attempt to load the model with various compatibility options.
-    Tries joblib first (more robust), then pickle with multiple methods.
+    Tries joblib first (most robust), then pickle with multiple methods.
     """
     global model
     
@@ -60,12 +60,14 @@ def load_model_with_compatibility():
         try:
             model = joblib.load(MODEL_PATH_JOBLIB)
             print(f"✓ Model loaded successfully using joblib (.joblib file)")
+            print(f"  Model expects {model.n_features_in_} features")
             return True
         except Exception as e:
             print(f"  Joblib method failed: {e}")
     
     # METHOD 2: Try pickle with encoding='latin1' (Python 2 to 3 compatibility)
     if os.path.exists(MODEL_PATH_PKL):
+        import pickle
         try:
             with open(MODEL_PATH_PKL, "rb") as f:
                 model = pickle.load(f, encoding='latin1')
@@ -169,22 +171,23 @@ def predict():
             }), 400
 
         # Define required features (must match model training order)
+        # These map to the actual dataset column names used in training
         required_features = [
-            "gender",
-            "nationality_group",
-            "parent_occupation_group",
-            "marital_status",
-            "student_type",
-            "previous_qualification_group",
-            "age_at_enrollment",
-            "tuition_up_to_date",
-            "displaced",
-            "special_needs",
-            "first_semester_grade",
-            "second_semester_grade",
-            "second_semester_approved",
-            "first_semester_approved",
-            "admission_grade"
+            "gender",                      # -> Gender
+            "nationality_group",           # -> Nacionality
+            "parent_occupation_group",     # -> Mother's occupation
+            "marital_status",              # -> Marital status
+            "student_type",                # -> International
+            "previous_qualification_group", # -> Previous qualification
+            "age_at_enrollment",           # -> Age at enrollment
+            "tuition_up_to_date",          # -> Tuition fees up to date
+            "displaced",                   # -> Displaced
+            "special_needs",               # -> Educational special needs
+            "first_semester_grade",        # -> Curricular units 1st sem (grade)
+            "second_semester_grade",       # -> Curricular units 2nd sem (grade)
+            "second_semester_approved",    # -> Curricular units 2nd sem (approved)
+            "first_semester_approved",     # -> Curricular units 1st sem (approved)
+            "admission_grade"              # -> Admission grade
         ]
        
         # Check for missing features
@@ -210,7 +213,22 @@ def predict():
         features_array = np.array([features])
        
         # Make prediction
-        prediction = int(model.predict(features_array)[0])
+        prediction_result = model.predict(features_array)[0]
+        
+        # Handle both numeric and string predictions
+        if isinstance(prediction_result, str):
+            # If model returns string, map it to numeric
+            string_to_numeric = {
+                "Dropout": 0,
+                "Drop Out": 0,
+                "Enrolled": 1,
+                "Remain Enrolled": 1,
+                "Graduate": 2
+            }
+            prediction = string_to_numeric.get(prediction_result, 0)
+        else:
+            # If model returns numeric, use it directly
+            prediction = int(prediction_result)
        
         # Get confidence score if available
         if hasattr(model, 'predict_proba'):
@@ -239,7 +257,10 @@ def predict():
         return jsonify(response), 200
    
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
         print(f"✗ Prediction error: {e}")
+        print(f"Full error:\n{error_details}")
         return jsonify({
             "error": f"An error occurred during prediction: {str(e)}",
             "success": False
@@ -255,6 +276,7 @@ def health_check():
     return jsonify({
         "status": "healthy",
         "model_loaded": model is not None,
+        "model_features": model.n_features_in_ if model else None,
         "joblib_available": JOBLIB_AVAILABLE,
         "python_version": sys.version
     }), 200
@@ -269,6 +291,8 @@ if __name__ == "__main__":
     print("="*70)
     print(f"📁 Model directory: {MODEL_DIR}")
     print(f"✓ Model status: {'Loaded ✓' if model else 'NOT LOADED ✗'}")
+    if model:
+        print(f"✓ Model features: {model.n_features_in_}")
     print(f"✓ Joblib available: {'Yes ✓' if JOBLIB_AVAILABLE else 'No ✗'}")
     if not model:
         print(f"\n⚠️  The model couldn't be loaded. Solutions:")
